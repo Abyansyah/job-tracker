@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     console.log(`Menerima pesan dari chat_id: ${chatId}`); // LOG 2: Cek chat_id
 
     // Handle perintah /start dengan token
-    if (message.text?.startsWith('/start ')) {
+    if (message.text?.startsWith('/start')) {
       const connectionToken = message.text.split(' ')[1];
       console.log(`Mendeteksi perintah /start dengan token: ${connectionToken}`); // LOG 3
 
