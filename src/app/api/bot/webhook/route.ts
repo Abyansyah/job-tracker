@@ -3,7 +3,6 @@ import TelegramBot from 'node-telegram-bot-api';
 import { db } from '@/db/drizzle';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import jwt from 'jsonwebtoken';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -11,49 +10,45 @@ if (!token) {
 }
 const bot = new TelegramBot(token!);
 
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const message = body.message;
 
-    if (!message || !message.chat?.id) {
-      return NextResponse.json({ status: 'ignored' });
+    if (!message || !message.chat?.id || !message.text) {
+      return NextResponse.json({ status: 'ignored', message: 'Invalid message format.' });
     }
 
     const chatId = message.chat.id;
-    const text = message.text || '';
+    const text = message.text;
 
-    // Pisahkan perintah dan argumen
-    const parts = text.split(' ');
-    const command = parts[0];
-    const connectionToken = parts[1]; // Bisa undefined jika tidak ada
+    if (text === '/start') {
+      await bot.sendMessage(chatId, `👋 Selamat datang di Asisten KarirKu!\n\nUntuk bisa menerima notifikasi pengingat wawancara, silakan kirim alamat email yang terdaftar di akun JobTracker Anda.`);
+    }
 
-    if (command === '/start') {
-      // Skenario 1: Ada token koneksi
-      if (connectionToken) {
-        try {
-          // Verifikasi token
-          const decoded = jwt.verify(connectionToken, process.env.JWT_SECRET!) as { userId: number };
+    else if (isValidEmail(text)) {
+      const email = text.toLowerCase();
 
-          // Update database
-          await db
-            .update(users)
-            .set({ telegram_chat_id: String(chatId) })
-            .where(eq(users.id, decoded.userId));
+      const foundUsers = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-          // Kirim pesan sukses
-          await bot.sendMessage(chatId, `✅ Berhasil! Akun JobTracker Anda telah terhubung. Anda akan menerima notifikasi pengingat melalui bot ini.`);
-        } catch (e) {
-          // Token tidak valid atau kedaluwarsa
-          await bot.sendMessage(chatId, `❌ Gagal! Tautan koneksi tidak valid atau sudah kedaluwarsa. Silakan buat tautan baru dari dalam aplikasi JobTracker Anda.`);
-        }
+      if (foundUsers.length > 0) {
+        const user = foundUsers[0];
+        await db
+          .update(users)
+          .set({ telegram_chat_id: String(chatId) })
+          .where(eq(users.id, user.id));
+        await bot.sendMessage(chatId, `✅ Berhasil! Akun Anda (${user.email}) telah terhubung. Anda siap menerima pengingat wawancara.`);
+      } else {
+        await bot.sendMessage(chatId, `❌ Maaf, email ${email} tidak ditemukan di sistem kami. Pastikan Anda memasukkan email yang benar.`);
       }
-      // Skenario 2: Tidak ada token koneksi
-      else {
-        await bot.sendMessage(chatId, `👋 Halo! Untuk bisa menerima notifikasi, silakan buka aplikasi JobTracker Anda dan klik tombol "Hubungkan ke Telegram" dari halaman profil.`);
-      }
-    } else {
-      await bot.sendMessage(chatId, `❓ Perintah tidak dikenali. Silakan gunakan /start untuk memulai.`);
+    }
+    else {
+      await bot.sendMessage(chatId, `Maaf, saya tidak mengerti. Untuk menghubungkan akun, silakan kirim alamat email Anda.`);
     }
 
     return NextResponse.json({ status: 'ok' });

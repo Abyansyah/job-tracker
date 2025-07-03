@@ -207,14 +207,32 @@ export default function ProfileContent() {
 
       <Card className="bg-white rounded-xl shadow-sm border-slate-200">
         <CardHeader>
-          <CardTitle>Notifikasi</CardTitle>
+          <CardTitle className="flex items-center text-slate-800">
+            <Send className="w-5 h-5 mr-2 text-blue-500" />
+            Notifikasi Telegram
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-600 mb-4">Hubungkan akun Telegram Anda untuk mendapatkan pengingat jadwal wawancara H-2 dan H-1.</p>
-          <Button onClick={handleConnectTelegram} disabled={!!user.telegram_chat_id}>
-            <Send className="w-4 h-4 mr-2" />
-            {user.telegram_chat_id ? 'Sudah Terhubung ke Telegram' : 'Hubungkan ke Telegram'}
-          </Button>
+          {user.telegram_chat_id ? (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
+              <p className="font-medium text-emerald-800">✅ Akun Anda sudah terhubung ke Telegram!</p>
+              <p className="text-sm text-emerald-700 mt-1">Anda akan menerima pengingat wawancara melalui bot.</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-slate-600 mb-4">Dapatkan pengingat jadwal wawancara H-2 dan H-1 langsung di Telegram Anda. Ikuti langkah mudah berikut:</p>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-slate-700 bg-slate-50 p-4 rounded-md">
+                <li>Buka aplikasi Telegram.</li>
+                <li>
+                  Cari bot <strong className="text-emerald-600">@JobTracker_Assistant_Bot</strong>
+                </li>
+                <li>
+                  Tekan tombol <strong>"START"</strong>.
+                </li>
+                <li>Kirim alamat email Anda saat diminta oleh bot.</li>
+              </ol>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
