@@ -1,5 +1,4 @@
 import HomePage from '@/components/modules/home/home-page';
-import Image from 'next/image';
 import { cookies } from 'next/headers';
 
 export default async function Home() {
