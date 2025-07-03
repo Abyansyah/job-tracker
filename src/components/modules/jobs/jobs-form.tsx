@@ -11,13 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CategoryManager } from './category-manager';
-import { Bell, CalendarIcon } from 'lucide-react';
+import { Bell, CalendarIcon, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/use-categories';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
+import Link from 'next/link';
+import useSWR from 'swr';
 
 interface JobFormProps {
   initialData?: any;
@@ -25,7 +27,10 @@ interface JobFormProps {
   mutate: () => void;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
+  const { data: user } = useSWR('/api/profile', fetcher);
   const [formData, setFormData] = useState({
     company_name: initialData?.company || '',
     position_applied: initialData?.position || '',
@@ -106,7 +111,6 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
   return (
     <div className="mobile-drawer-scroll custom-scrollbar">
       <form onSubmit={handleSubmit} className="space-y-6 pb-6">
-        {/* Company Name */}
         <div className="space-y-2">
           <Label htmlFor="company_name" className="text-slate-700 font-medium">
             Nama Perusahaan *
@@ -114,7 +118,6 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
           <Input id="company_name" value={formData.company_name} onChange={(e) => handleInputChange('company_name', e.target.value)} placeholder="PT Teknologi Maju" required />
         </div>
 
-        {/* Position */}
         <div className="space-y-2">
           <Label htmlFor="position_applied" className="text-slate-700 font-medium">
             Posisi yang Dilamar *
@@ -122,7 +125,6 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
           <Input id="position_applied" value={formData.position_applied} onChange={(e) => handleInputChange('position_applied', e.target.value)} placeholder="Frontend Developer" required />
         </div>
 
-        {/* URL */}
         <div className="space-y-2">
           <Label htmlFor="url" className="text-slate-700 font-medium">
             URL Lowongan
@@ -130,7 +132,6 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
           <Input id="url" type="url" value={formData.url} onChange={(e) => handleInputChange('url', e.target.value)} placeholder="https://linkedin.com/jobs/123456" />
         </div>
 
-        {/* Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-slate-700 font-medium">Tanggal Melamar *</Label>
@@ -162,7 +163,6 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
           </div>
         </div>
 
-        {/* Category Selects */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -229,16 +229,31 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
           </div>
         </div>
         {showNotificationToggle && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="notification-switch" className="flex items-center font-medium text-emerald-800">
-                <Bell className="w-4 h-4 mr-2" />
-                Ingatkan Saya
-              </Label>
-              <Switch id="notification-switch" checked={formData.is_notification_enabled} onCheckedChange={(checked) => handleInputChange('is_notification_enabled', checked)} className="data-[state=checked]:bg-emerald-600" />
-            </div>
-            <p className="text-xs text-emerald-700">Anda akan menerima notifikasi 2 hari sebelum tanggal wawancara.</p>
-          </div>
+          <>
+            {user?.telegram_chat_id ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notification-switch" className="flex items-center font-medium text-emerald-800">
+                    <Bell className="w-4 h-4 mr-2" />
+                    Ingatkan Saya via Telegram
+                  </Label>
+                  <Switch id="notification-switch" checked={formData.is_notification_enabled} onCheckedChange={(checked) => handleInputChange('is_notification_enabled', checked)} className="data-[state=checked]:bg-emerald-600" />
+                </div>
+                <p className="text-xs text-emerald-700">Anda akan menerima notifikasi H-2 dan H-1 sebelum tanggal wawancara.</p>
+              </div>
+            ) : (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                <Send className="w-8 h-8 mx-auto text-amber-500 mb-2" />
+                <h4 className="font-semibold text-amber-900">Hubungkan Telegram Terlebih Dahulu</h4>
+                <p className="text-xs text-amber-800 mt-1 mb-3">Anda harus menghubungkan akun Telegram Anda di halaman profil untuk bisa mengaktifkan pengingat.</p>
+                <Link href="/profile">
+                  <Button variant="outline" className="bg-white border-amber-300 text-amber-800 hover:bg-white/80">
+                    Pergi ke Halaman Profil
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </>
         )}
 
         <div className="space-y-2">
