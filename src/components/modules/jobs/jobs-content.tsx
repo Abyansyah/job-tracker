@@ -10,22 +10,48 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { JobForm } from './jobs-form';
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, ExternalLink, Building, MapPin } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, ExternalLink, Building, MapPin, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useJobs } from '@/hooks/use-jobs';
 import { toast } from 'sonner';
+import { useCategories } from '@/hooks/use-categories';
 
 export default function JobsContent() {
-  const { jobs, isLoading, mutate } = useJobs();
+  const { data: locations } = useCategories('locations');
+  const { data: statuses } = useCategories('statuses');
+  const { data: sources } = useCategories('sources');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+
+  const [filters, setFilters] = useState({
+    location: '',
+    status: '',
+    source: '',
+  });
+  const combinedFilters = { searchTerm, ...filters };
+  const { jobs, isLoading, mutate } = useJobs(combinedFilters);
+
+  const handleFilterChange = (type: 'location' | 'status' | 'source', value: string) => {
+    setFilters((prev) => ({ ...prev, [type]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+    setFilters({ location: '', status: '', source: '' });
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
 
   const handleEdit = (job: any) => {
     setSelectedJob(job);
@@ -56,18 +82,17 @@ export default function JobsContent() {
     });
   };
 
-  const filteredJobs = jobs.filter((job: any) => job.company.toLowerCase().includes(searchTerm.toLowerCase()) || job.position.toLowerCase().includes(searchTerm.toLowerCase()));
-  const totalEntries = filteredJobs.length;
+  const totalEntries = jobs.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
-  const currentJobs = filteredJobs.slice(startIndex, endIndex);
+  const currentJobs = jobs.slice(startIndex, endIndex);
 
   return (
     <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Daftar Lamaran</h1>
-        <Button onClick={handleAdd}>
+        <Button className=" bg-emerald-500 hover:bg-emerald-600" onClick={handleAdd}>
           <Plus className="w-4 h-4 mr-2" />
           Tambah Lamaran
         </Button>
@@ -75,25 +100,54 @@ export default function JobsContent() {
 
       <Card className="bg-white rounded-xl shadow-sm border-slate-200">
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="relative flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="relative lg:col-span-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <Input placeholder="Cari perusahaan atau posisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+              <Input placeholder="Cari perusahaan atau posisi..." value={searchTerm} onChange={handleSearchChange} className="pl-10" />
             </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <span>Show:</span>
-              <Select value={String(entriesPerPage)} onValueChange={(value) => setEntriesPerPage(Number(value))}>
-                <SelectTrigger className="w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>entries</span>
-            </div>
+            <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value === 'all' ? '' : value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Semua Lokasi" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Lokasi</SelectItem>
+                {locations.map((loc: any) => (
+                  <SelectItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value === 'all' ? '' : value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Semua Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Status</SelectItem>
+                {statuses.map((stat: any) => (
+                  <SelectItem key={stat.id} value={stat.name}>
+                    {stat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filters.source} onValueChange={(value) => handleFilterChange('source', value === 'all' ? '' : value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Semua Sumber" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Sumber</SelectItem>
+                {sources.map((src: any) => (
+                  <SelectItem key={src.id} value={src.name}>
+                    {src.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 lg:col-span-5 justify-center">
+              <X className="w-4 h-4 mr-2" />
+              Reset Semua Filter
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

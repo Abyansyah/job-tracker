@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Lock, Save, Eye, EyeOff, Send } from 'lucide-react';
 import useSWR from 'swr';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -224,7 +225,10 @@ export default function ProfileContent() {
               <ol className="list-decimal list-inside space-y-2 text-sm text-slate-700 bg-slate-50 p-4 rounded-md">
                 <li>Buka aplikasi Telegram.</li>
                 <li>
-                  Cari bot <strong className="text-emerald-600">@JobTracker_Assistant_Bot</strong>
+                  Cari bot{' '}
+                  <Link href="https://t.me/JobTracker_Assistant_Bot" target="_blank" className="text-blue-500 hover:underline">
+                    <strong className="text-emerald-600">@JobTracker_Assistant_Bot (*Klik di sini*)</strong>
+                  </Link>
                 </li>
                 <li>
                   Tekan tombol <strong>"START"</strong>.

@@ -1,12 +1,32 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/drizzle';
 import { jobTrackers, locations, statuses, applicationSources } from '@/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, or, ilike } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
+    const { searchParams } = new URL(request.url);
+    const searchTerm = searchParams.get('searchTerm');
+    const locationName = searchParams.get('location');
+    const statusName = searchParams.get('status');
+    const sourceName = searchParams.get('source');
+
+    const conditions = [eq(jobTrackers.userId, user.id)];
+
+    if (searchTerm) {
+      conditions.push(or(ilike(jobTrackers.company_name, `%${searchTerm}%`), ilike(jobTrackers.position_applied, `%${searchTerm}%`))!);
+    }
+    if (locationName) {
+      conditions.push(eq(locations.name, locationName));
+    }
+    if (statusName) {
+      conditions.push(eq(statuses.name, statusName));
+    }
+    if (sourceName) {
+      conditions.push(eq(applicationSources.name, sourceName));
+    }
     const data = await db
       .select({
         id: jobTrackers.id,
@@ -29,7 +49,7 @@ export async function GET() {
       .leftJoin(locations, eq(jobTrackers.locationId, locations.id))
       .leftJoin(statuses, eq(jobTrackers.statusId, statuses.id))
       .leftJoin(applicationSources, eq(jobTrackers.sourceId, applicationSources.id))
-      .where(eq(jobTrackers.userId, user.id))
+      .where(and(...conditions))
       .orderBy(desc(jobTrackers.application_date));
 
     return NextResponse.json(data);
