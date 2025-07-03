@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { LayoutDashboard, Briefcase, LogOut, Plus, User } from 'lucide-react';
@@ -17,8 +17,6 @@ export const bottomNavigation = [{ name: 'Profile', href: '/profile', icon: User
 export function Sidebar() {
   const pathname = usePathname();
 
-  const router = useRouter();
-
   const handleLogout = async () => {
     const promise = fetch('/api/auth/logout', { method: 'POST' }).then((res) => {
       if (!res.ok) throw new Error('Logout gagal');
@@ -28,7 +26,7 @@ export function Sidebar() {
     toast.promise(promise, {
       loading: 'Logging out...',
       success: () => {
-        router.push('/login');
+        window.location.href = '/login';
         return 'Logout berhasil!';
       },
       error: (err) => err.message,
