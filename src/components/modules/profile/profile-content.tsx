@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Lock, Save, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Save, Eye, EyeOff, Send } from 'lucide-react';
 import useSWR from 'swr';
 import { toast } from 'sonner';
 
@@ -49,12 +49,27 @@ export default function ProfileContent() {
     toast.promise(promise, {
       loading: 'Menyimpan profil...',
       success: (updatedUser) => {
-        mutate(updatedUser, false); // Update SWR cache tanpa re-fetch
+        mutate(updatedUser, false);
         return 'Profil berhasil diperbarui!';
       },
       error: (err) => err.message,
       finally: () => setIsLoadingProfile(false),
     });
+  };
+
+  const handleConnectTelegram = async () => {
+    toast.info('Membuat link koneksi...');
+    try {
+      const res = await fetch('/api/profile/generate-telegram-token', { method: 'POST' });
+      if (!res.ok) throw new Error('Gagal mendapatkan token.');
+
+      const { token } = await res.json();
+      const botUsername = 'JobTracker_Assistant_Bot';
+      const url = `https://t.me/${botUsername}?start=${token}`;
+      window.open(url, '_blank');
+    } catch (error) {
+      toast.error('Gagal membuat link. Silakan coba lagi.');
+    }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -187,6 +202,19 @@ export default function ProfileContent() {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white rounded-xl shadow-sm border-slate-200">
+        <CardHeader>
+          <CardTitle>Notifikasi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-slate-600 mb-4">Hubungkan akun Telegram Anda untuk mendapatkan pengingat jadwal wawancara H-2 dan H-1.</p>
+          <Button onClick={handleConnectTelegram} disabled={!!user.telegram_chat_id}>
+            <Send className="w-4 h-4 mr-2" />
+            {user.telegram_chat_id ? 'Sudah Terhubung ke Telegram' : 'Hubungkan ke Telegram'}
+          </Button>
         </CardContent>
       </Card>
     </div>

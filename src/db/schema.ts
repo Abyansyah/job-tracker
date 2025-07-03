@@ -1,4 +1,4 @@
-import { pgTable, integer, text, timestamp, serial, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, integer, text, timestamp, serial, boolean, varchar } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
@@ -8,6 +8,7 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   no_telephone: text('telephone').unique(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  telegram_chat_id: varchar('telegram_chat_id', { length: 255 }).unique(),
 });
 
 export const locations = pgTable('locations', {
@@ -54,7 +55,7 @@ export const jobTrackers = pgTable('jobTrackers', {
     .references(() => users.id, {
       onDelete: 'cascade',
     }),
-  is_notification_enabled: boolean('is_notification_enabled').default(false).notNull(), 
+  is_notification_enabled: boolean('is_notification_enabled').default(false).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

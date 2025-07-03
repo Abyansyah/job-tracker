@@ -1,5 +1,5 @@
 {
-  "id": "8ed1acdd-4caf-4e59-9fef-c955f7648d6b",
+  "id": "0bc5398d-eb2e-4994-a03c-e4b16482ff12",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -343,6 +343,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "telegram_chat_id": {
+          "name": "telegram_chat_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -361,6 +367,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "telephone"
+          ]
+        },
+        "users_telegram_chat_id_unique": {
+          "name": "users_telegram_chat_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "telegram_chat_id"
           ]
         }
       },

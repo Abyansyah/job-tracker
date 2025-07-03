@@ -42,8 +42,10 @@ CREATE TABLE "users" (
 	"password" text NOT NULL,
 	"telephone" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
+	"telegram_chat_id" varchar(255),
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
-	CONSTRAINT "users_telephone_unique" UNIQUE("telephone")
+	CONSTRAINT "users_telephone_unique" UNIQUE("telephone"),
+	CONSTRAINT "users_telegram_chat_id_unique" UNIQUE("telegram_chat_id")
 );
 --> statement-breakpoint
 ALTER TABLE "applicationSources" ADD CONSTRAINT "applicationSources_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
