@@ -5,56 +5,55 @@ import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 
-// Inisialisasi bot di luar handler untuk efisiensi
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
-  console.error('FATAL: TELEGRAM_BOT_TOKEN tidak ditemukan di environment variables.');
+  console.error('FATAL: TELEGRAM_BOT_TOKEN tidak ditemukan.');
 }
 const bot = new TelegramBot(token!);
 
 export async function POST(request: Request) {
-  console.log('Webhook dipanggil...'); // LOG 1: Cek apakah fungsi dimulai
-
   try {
     const body = await request.json();
     const message = body.message;
 
     if (!message || !message.chat?.id) {
-      console.warn('Pesan atau chat.id tidak valid, request diabaikan.');
       return NextResponse.json({ status: 'ignored' });
     }
 
     const chatId = message.chat.id;
-    console.log(`Menerima pesan dari chat_id: ${chatId}`); // LOG 2: Cek chat_id
+    const text = message.text || '';
 
-    // Handle perintah /start dengan token
-    if (message.text?.startsWith('/start')) {
-      const connectionToken = message.text.split(' ')[1];
-      console.log(`Mendeteksi perintah /start dengan token: ${connectionToken}`); // LOG 3
+    // Pisahkan perintah dan argumen
+    const parts = text.split(' ');
+    const command = parts[0];
+    const connectionToken = parts[1]; // Bisa undefined jika tidak ada
 
-      try {
-        console.log('Mencoba memverifikasi JWT...');
-        const decoded = jwt.verify(connectionToken, process.env.JWT_SECRET!) as { userId: number };
-        console.log(`JWT berhasil diverifikasi untuk userId: ${decoded.userId}`); // LOG 4
+    if (command === '/start') {
+      // Skenario 1: Ada token koneksi
+      if (connectionToken) {
+        try {
+          // Verifikasi token
+          const decoded = jwt.verify(connectionToken, process.env.JWT_SECRET!) as { userId: number };
 
-        console.log(`Mencoba mengupdate database untuk userId: ${decoded.userId}...`);
-        await db
-          .update(users)
-          .set({ telegram_chat_id: String(chatId) })
-          .where(eq(users.id, decoded.userId));
-        console.log('Database berhasil diupdate.'); // LOG 5
+          // Update database
+          await db
+            .update(users)
+            .set({ telegram_chat_id: String(chatId) })
+            .where(eq(users.id, decoded.userId));
 
-        console.log('Mengirim pesan sukses ke pengguna...');
-        await bot.sendMessage(chatId, `✅ Berhasil! Akun JobTracker Anda telah terhubung. Anda akan menerima notifikasi pengingat melalui bot ini.`);
-        console.log('Pesan sukses berhasil dikirim.'); // LOG 6
-      } catch (e: any) {
-        // Ini adalah blok paling penting jika terjadi error
-        console.error('ERROR saat memproses token:', e.message); // LOG 7: Error spesifik
-        await bot.sendMessage(chatId, `❌ Gagal! Token koneksi tidak valid atau sudah kedaluwarsa. Silakan buat tautan baru dari aplikasi JobTracker Anda.`);
+          // Kirim pesan sukses
+          await bot.sendMessage(chatId, `✅ Berhasil! Akun JobTracker Anda telah terhubung. Anda akan menerima notifikasi pengingat melalui bot ini.`);
+        } catch (e) {
+          // Token tidak valid atau kedaluwarsa
+          await bot.sendMessage(chatId, `❌ Gagal! Tautan koneksi tidak valid atau sudah kedaluwarsa. Silakan buat tautan baru dari dalam aplikasi JobTracker Anda.`);
+        }
+      }
+      // Skenario 2: Tidak ada token koneksi
+      else {
+        await bot.sendMessage(chatId, `👋 Halo! Untuk bisa menerima notifikasi, silakan buka aplikasi JobTracker Anda dan klik tombol "Hubungkan ke Telegram" dari halaman profil.`);
       }
     } else {
-      // Handle jika pengguna mengirim pesan lain
-      await bot.sendMessage(chatId, `Untuk menghubungkan akun, silakan klik tombol "Hubungkan ke Telegram" dari dalam aplikasi JobTracker Anda.`);
+      await bot.sendMessage(chatId, `❓ Perintah tidak dikenali. Silakan gunakan /start untuk memulai.`);
     }
 
     return NextResponse.json({ status: 'ok' });
