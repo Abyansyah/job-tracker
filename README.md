@@ -1,4 +1,4 @@
-![Frame 1](https://github.com/user-attachments/assets/a09f27a3-df62-44ff-b473-da9db32107d8)
+![Frame 1 (1)](https://github.com/user-attachments/assets/24370abc-2c75-40b1-8765-6dce4ebc5dc9)
 
 # 🚀 JobTracker – Lacak Semua Lamaran Kerjamu di Satu Tempat
 
