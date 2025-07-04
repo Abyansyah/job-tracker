@@ -58,18 +58,27 @@ export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    const url = initialData ? `/api/jobs/${initialData.id}` : '/api/jobs';
-    const method = initialData ? 'PUT' : 'POST';
-
-    const finalFormData = {
+    const payload = {
       ...formData,
       is_notification_enabled: showNotificationToggle ? formData.is_notification_enabled : false,
     };
 
+    if (payload.application_date) {
+      const date = payload.application_date;
+      payload.application_date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+    if (payload.interview_date) {
+      const date = payload.interview_date;
+      payload.interview_date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    }
+
+    const url = initialData ? `/api/jobs/${initialData.id}` : '/api/jobs';
+    const method = initialData ? 'PUT' : 'POST';
+
     const promise = fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(finalFormData),
+      body: JSON.stringify(payload),
     }).then(async (res) => {
       if (!res.ok) {
         const errorData = await res.json();

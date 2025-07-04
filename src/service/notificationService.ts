@@ -22,6 +22,13 @@ Halo *${user.name}*,
 Jangan lupa, Anda memiliki jadwal wawancara untuk posisi *${job.position_applied}* di *${job.company_name}*.
 
 🗓️ *Jadwal:* ${interviewDate}
+${
+  job.notes
+    ? `
+📝 *Catatan:*
+${job.notes}`
+    : ''
+}
 
 Semoga berhasil! ✨
     `;
