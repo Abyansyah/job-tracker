@@ -14,15 +14,15 @@ export async function GET(request: Request) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const reminderDateH1 = new Date(today);
-    reminderDateH1.setDate(today.getDate() + 1);
-    const startOfH1 = new Date(reminderDateH1);
-    const endOfH1 = new Date(new Date(reminderDateH1).setHours(23, 59, 59, 999));
+    const targetDateH2 = new Date(today);
+    targetDateH2.setDate(today.getDate() + 2);
+    const startOfTargetH2 = targetDateH2;
+    const endOfTargetH2 = new Date(new Date(targetDateH2).setHours(23, 59, 59, 999));
 
-    const reminderDateH2 = new Date(today);
-    reminderDateH2.setDate(today.getDate() + 2);
-    const startOfH2 = new Date(reminderDateH2);
-    const endOfH2 = new Date(new Date(reminderDateH2).setHours(23, 59, 59, 999));
+    const targetDateH1 = new Date(today);
+    targetDateH1.setDate(today.getDate() + 1);
+    const startOfTargetH1 = targetDateH1;
+    const endOfTargetH1 = new Date(new Date(targetDateH1).setHours(23, 59, 59, 999));
 
     const remindersToSend = await db
       .select({ job: jobTrackers, user: users })
@@ -31,7 +31,10 @@ export async function GET(request: Request) {
       .where(
         and(
           eq(jobTrackers.is_notification_enabled, true),
-          or(and(gte(jobTrackers.interview_date, startOfH1), lt(jobTrackers.interview_date, endOfH1)), and(gte(jobTrackers.interview_date, startOfH2), lt(jobTrackers.interview_date, endOfH2)))
+          or(
+            and(gte(jobTrackers.interview_date, startOfTargetH1), lt(jobTrackers.interview_date, endOfTargetH1)),
+            and(gte(jobTrackers.interview_date, startOfTargetH2), lt(jobTrackers.interview_date, endOfTargetH2))
+          )
         )
       );
 
