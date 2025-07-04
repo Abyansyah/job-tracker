@@ -9,14 +9,12 @@ export async function GET() {
     const user = await getCurrentUser();
     const userId = user.id;
 
-    // Menghitung total lamaran
     const totalApplicationsResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(jobTrackers)
       .where(eq(jobTrackers.userId, userId));
     const totalApplications = totalApplicationsResult[0].count;
 
-    // Menghitung statistik berdasarkan status
     const statusStatsResult = await db
       .select({
         statusName: statuses.name,
@@ -34,19 +32,15 @@ export async function GET() {
       return acc;
     }, {} as Record<string, number>);
 
-    // Statistik untuk chart
     const monthlyApplications = await db
       .select({
         month: sql<string>`TO_CHAR("application_date", 'Mon')`,
-        // Tambahkan kolom numerik untuk pengurutan
         month_numeric: sql<string>`TO_CHAR("application_date", 'MM')`,
         applications: sql<number>`count(*)`,
       })
       .from(jobTrackers)
       .where(eq(jobTrackers.userId, userId))
-      // Kelompokkan juga berdasarkan kolom numerik
       .groupBy(sql`TO_CHAR("application_date", 'Mon')`, sql`TO_CHAR("application_date", 'MM')`)
-      // Urutkan berdasarkan kolom numerik
       .orderBy(sql`TO_CHAR("application_date", 'MM')`);
 
     const statusBreakdown = await db
@@ -60,7 +54,6 @@ export async function GET() {
       .where(eq(jobTrackers.userId, userId))
       .groupBy(statuses.name, statuses.color);
 
-    // Lamaran terbaru
     const recentApplications = await db
       .select({
         company: jobTrackers.company_name,

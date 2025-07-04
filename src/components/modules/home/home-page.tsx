@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, Briefcase, CheckCircle, Facebook, Instagram, Linkedin, Target, Twitter } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
-import Cookies from 'js-cookie';
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -25,13 +24,11 @@ interface HomePageProps {
 export default function HomePage({ isLoggedIn }: HomePageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Jalankan SWR hanya jika prop isLoggedIn bernilai true
   const { data: user, isLoading } = useSWR(isLoggedIn ? '/api/auth/me' : null, fetcher, {
     shouldRetryOnError: false,
   });
 
   const AuthButtons = () => {
-    // Jika user login (baik dari prop awal atau hasil SWR), tampilkan tombol Dashboard
     if (isLoggedIn && user) {
       return (
         <Link href="/dashboard">
@@ -40,7 +37,6 @@ export default function HomePage({ isLoggedIn }: HomePageProps) {
       );
     }
 
-    // Jika tidak login, atau masih loading status login, tampilkan tombol default
     return (
       <div className="flex items-center space-x-4">
         <Link href="/login">
