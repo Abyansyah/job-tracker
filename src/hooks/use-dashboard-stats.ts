@@ -1,6 +1,5 @@
+import { fetcher } from '@/lib/utils';
 import useSWR from 'swr';
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useDashboardStats() {
   const { data, error, mutate } = useSWR('/api/dashboard/stats', fetcher);

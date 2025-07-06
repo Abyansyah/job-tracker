@@ -8,14 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart3, Briefcase, CheckCircle, Facebook, Instagram, Linkedin, Target, Twitter } from 'lucide-react';
 import { useState } from 'react';
 import useSWR from 'swr';
-
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) {
-      throw new Error('Not authenticated');
-    }
-    return res.json();
-  });
+import { fetcher } from '@/lib/utils';
 
 interface HomePageProps {
   isLoggedIn: boolean;

@@ -1,19 +1,19 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Briefcase, Calendar, TrendingUp, TrendingDown, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Briefcase, Calendar, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/use-dashboard-stats';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { DashboardSkeleton } from './dashboard-loading';
 
 export default function DashboardContent() {
   const { stats, isLoading } = useDashboardStats();
 
   if (isLoading) {
-    return <div>Memuat data dasbor...</div>;
+    return <DashboardSkeleton />;
   }
 
   const statusBreakdown = stats?.statusBreakdown.map((item: any) => ({ ...item, value: Number(item.value) }));
@@ -27,7 +27,7 @@ export default function DashboardContent() {
             <Briefcase className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{stats.totalApplications}</div>
+            <div className="text-2xl font-bold text-slate-800">{stats?.totalApplications}</div>
             <div className="flex items-center text-xs text-emerald-600">
               <TrendingUp className="w-3 h-3 mr-1" />
               +25% vs bulan lalu
@@ -41,7 +41,7 @@ export default function DashboardContent() {
             <Calendar className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{stats.interviews}</div>
+            <div className="text-2xl font-bold text-slate-800">{stats?.interviews}</div>
           </CardContent>
         </Card>
 
@@ -51,7 +51,7 @@ export default function DashboardContent() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{stats.offers}</div>
+            <div className="text-2xl font-bold text-slate-800">{stats?.offers}</div>
           </CardContent>
         </Card>
 
@@ -61,7 +61,7 @@ export default function DashboardContent() {
             <XCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{stats.rejections}</div>
+            <div className="text-2xl font-bold text-slate-800">{stats?.rejections}</div>
           </CardContent>
         </Card>
       </div>
@@ -74,7 +74,7 @@ export default function DashboardContent() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.monthlyApplications}>
+              <BarChart data={stats?.monthlyApplications}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="month" stroke="#64748b" />
                 <YAxis stroke="#64748b" />

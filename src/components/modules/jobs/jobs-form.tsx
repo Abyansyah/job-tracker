@@ -14,7 +14,7 @@ import { CategoryManager } from './category-manager';
 import { Bell, CalendarIcon, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn, fetcher } from '@/lib/utils';
 import { useCategories } from '@/hooks/use-categories';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -26,8 +26,6 @@ interface JobFormProps {
   onClose: () => void;
   mutate: () => void;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function JobForm({ initialData, onClose, mutate }: JobFormProps) {
   const { data: user } = useSWR('/api/profile', fetcher);

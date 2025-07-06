@@ -9,9 +9,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import useSWR from 'swr';
 import { toast } from 'sonner';
+import { fetcher } from '@/lib/utils';
 
 export const allNavigation = [...navigation, ...bottomNavigation];
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function TopBar() {
   const pathname = usePathname();

@@ -101,11 +101,11 @@ export default function FormRegister() {
             <Checkbox id="terms" checked={acceptTerms} onCheckedChange={() => setAcceptTerms(!acceptTerms)} />
             <Label htmlFor="terms" className="text-sm text-slate-600">
               Saya setuju dengan{' '}
-              <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 hover:underline">
+              <Link href="/" className="text-emerald-600 hover:text-emerald-700 hover:underline">
                 Syarat & Ketentuan
               </Link>{' '}
               dan{' '}
-              <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 hover:underline">
+              <Link href="/" className="text-emerald-600 hover:text-emerald-700 hover:underline">
                 Kebijakan Privasi
               </Link>
             </Label>

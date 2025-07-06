@@ -10,11 +10,11 @@ import { User, Lock, Save, Eye, EyeOff, Send } from 'lucide-react';
 import useSWR from 'swr';
 import { toast } from 'sonner';
 import Link from 'next/link';
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { fetcher } from '@/lib/utils';
+import { ProfileSkeleton } from './profile-loading';
 
 export default function ProfileContent() {
-  const { data: user, error, mutate } = useSWR('/api/profile', fetcher);
+  const { data: user, error, mutate, isLoading: isUserLoading } = useSWR('/api/profile', fetcher);
 
   const [profileData, setProfileData] = useState({ name: '', email: '', no_telephone: '' });
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -58,21 +58,6 @@ export default function ProfileContent() {
     });
   };
 
-  const handleConnectTelegram = async () => {
-    toast.info('Membuat link koneksi...');
-    try {
-      const res = await fetch('/api/profile/generate-telegram-token', { method: 'POST' });
-      if (!res.ok) throw new Error('Gagal mendapatkan token.');
-
-      const { token } = await res.json();
-      const botUsername = 'JobTracker_Assistant_Bot';
-      const url = `https://t.me/${botUsername}?start=${token}`;
-      window.open(url, '_blank');
-    } catch (error) {
-      toast.error('Gagal membuat link. Silakan coba lagi.');
-    }
-  };
-
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -105,7 +90,7 @@ export default function ProfileContent() {
   };
 
   if (error) return <div>Gagal memuat profil. Silakan coba lagi.</div>;
-  if (!user) return <div>Memuat...</div>;
+  if (isUserLoading || !user) return <ProfileSkeleton />;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
