@@ -1,4 +1,4 @@
-![logo-job-tracker](https://github.com/user-attachments/assets/cc715607-f94f-40cd-b99a-ae75d829026a)
+![Frame 1 (1)](https://github.com/user-attachments/assets/24370abc-2c75-40b1-8765-6dce4ebc5dc9)
 
 # 🚀 JobTracker – Lacak Semua Lamaran Kerjamu di Satu Tempat
 
