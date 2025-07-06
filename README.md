@@ -155,7 +155,7 @@ Untuk melihat contoh lebih lengkap:
 
 ## 📢 Penting: Atur Webhook Telegram (Setelah Deploy)
 
-Setelah kamu deploy ke Vercel, atur webhook bot Telegram hanya satu kali:
+Setelah deploy ke Vercel, atur webhook bot Telegram hanya satu kali:
 
 ```
 https://api.telegram.org/bot<TOKEN_ANDA>/setWebhook?url=<URL_VERCEL_ANDA>/api/bot/webhook
@@ -171,7 +171,7 @@ https://api.telegram.org/bot12345:ABCDE/setWebhook?url=https://jobtracker.vercel
 
 ## 🔗 Link Deployment
 
-Kamu bisa mencoba aplikasi JobTracker versi live di sini:
+Coba aplikasi JobTracker versi live di sini:
 
 🌐 [https://job-tracker-ahmadabyan.vercel.app](https://job-tracker-ahmadabyan.vercel.app)
 
@@ -180,9 +180,9 @@ Kamu bisa mencoba aplikasi JobTracker versi live di sini:
 
 ## 📄 Lisensi
 
-Proyek ini menggunakan lisensi MIT. Silakan gunakan dan modifikasi sesuai kebutuhan kamu.
+Proyek ini menggunakan lisensi MIT. Silakan gunakan dan modifikasi sesuai kebutuhan pengguna.
 
 ---
 
-Kalau kamu suka proyek ini, boleh banget di-⭐️ dan dibagikan ke teman-teman yang juga lagi cari kerja!  
+Kalau kalian suka proyek ini, boleh banget di-⭐️ dan dibagikan ke teman-teman yang juga lagi cari kerja!  
 Untuk saran, kritik, atau kontribusi, feel free untuk buat pull request atau open issue ya.
